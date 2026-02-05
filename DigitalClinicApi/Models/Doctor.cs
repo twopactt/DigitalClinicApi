@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DigitalClinicApi.Models;
+﻿namespace DigitalClinicApi.Models;
 
 public partial class Doctor
 {
@@ -24,6 +21,8 @@ public partial class Doctor
     public string Login { get; set; } = null!;
 
     public string Password { get; set; } = null!;
+
+    public virtual ICollection<Consultation> Consultations { get; set; } = new List<Consultation>();
 
     public virtual Department Department { get; set; } = null!;
 

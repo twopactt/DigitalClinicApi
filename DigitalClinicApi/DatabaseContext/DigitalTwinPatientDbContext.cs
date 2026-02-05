@@ -1,4 +1,6 @@
-﻿using DigitalClinicApi.Models;
+﻿using System;
+using System.Collections.Generic;
+using DigitalClinicApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DigitalClinicApi.DatabaseContext;
@@ -11,6 +13,12 @@ public partial class DigitalTwinPatientDbContext : DbContext
     }
 
     public virtual DbSet<Address> Addresses { get; set; }
+
+    public virtual DbSet<Admin> Admins { get; set; }
+
+    public virtual DbSet<Consultation> Consultations { get; set; }
+
+    public virtual DbSet<ConsultationType> ConsultationTypes { get; set; }
 
     public virtual DbSet<Department> Departments { get; set; }
 
@@ -26,9 +34,15 @@ public partial class DigitalTwinPatientDbContext : DbContext
 
     public virtual DbSet<Gender> Genders { get; set; }
 
+    public virtual DbSet<HealthMetric> HealthMetrics { get; set; }
+
     public virtual DbSet<Instruction> Instructions { get; set; }
 
+    public virtual DbSet<MedicalCard> MedicalCards { get; set; }
+
     public virtual DbSet<Medication> Medications { get; set; }
+
+    public virtual DbSet<MetricType> MetricTypes { get; set; }
 
     public virtual DbSet<Patient> Patients { get; set; }
 
@@ -46,9 +60,9 @@ public partial class DigitalTwinPatientDbContext : DbContext
 
     public virtual DbSet<SymptomCategory> SymptomCategories { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-KSRNQI5;Initial Catalog=DigitalTwinPatientDB;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
+    public virtual DbSet<UnitOfMetricType> UnitOfMetricTypes { get; set; }
+
+    public virtual DbSet<WellnessJournal> WellnessJournals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,6 +73,48 @@ public partial class DigitalTwinPatientDbContext : DbContext
             entity.Property(e => e.Building).HasMaxLength(8);
             entity.Property(e => e.City).HasMaxLength(50);
             entity.Property(e => e.Street).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Admin>(entity =>
+        {
+            entity.ToTable("Admin");
+
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.Login).HasMaxLength(20);
+            entity.Property(e => e.Name).HasMaxLength(30);
+            entity.Property(e => e.Password).HasMaxLength(255);
+            entity.Property(e => e.Patronymic).HasMaxLength(30);
+            entity.Property(e => e.Phone).HasMaxLength(12);
+            entity.Property(e => e.Surname).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<Consultation>(entity =>
+        {
+            entity.ToTable("Consultation");
+
+            entity.Property(e => e.DateConsultation).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ConsultationType).WithMany(p => p.Consultations)
+                .HasForeignKey(d => d.ConsultationTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Consultation_ConsultationType");
+
+            entity.HasOne(d => d.Doctor).WithMany(p => p.Consultations)
+                .HasForeignKey(d => d.DoctorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Consultation_Doctor");
+
+            entity.HasOne(d => d.Patient).WithMany(p => p.Consultations)
+                .HasForeignKey(d => d.PatientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Consultation_Patient");
+        });
+
+        modelBuilder.Entity<ConsultationType>(entity =>
+        {
+            entity.ToTable("ConsultationType");
+
+            entity.Property(e => e.Name).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Department>(entity =>
@@ -134,6 +190,25 @@ public partial class DigitalTwinPatientDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(7);
         });
 
+        modelBuilder.Entity<HealthMetric>(entity =>
+        {
+            entity.ToTable("HealthMetric");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.MeasuredAt).HasColumnType("datetime");
+            entity.Property(e => e.Value).HasColumnType("decimal(10, 2)");
+
+            entity.HasOne(d => d.MetricType).WithMany(p => p.HealthMetrics)
+                .HasForeignKey(d => d.MetricTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HealthMetric_MetricType");
+
+            entity.HasOne(d => d.Patient).WithMany(p => p.HealthMetrics)
+                .HasForeignKey(d => d.PatientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HealthMetric_Patient");
+        });
+
         modelBuilder.Entity<Instruction>(entity =>
         {
             entity.ToTable("Instruction");
@@ -141,11 +216,41 @@ public partial class DigitalTwinPatientDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<MedicalCard>(entity =>
+        {
+            entity.ToTable("MedicalCard");
+
+            entity.Property(e => e.BloodType).HasMaxLength(5);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Weight).HasColumnType("decimal(5, 2)");
+
+            entity.HasOne(d => d.Patient).WithMany(p => p.MedicalCards)
+                .HasForeignKey(d => d.PatientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MedicalCard_Patient");
+        });
+
         modelBuilder.Entity<Medication>(entity =>
         {
             entity.ToTable("Medication");
 
             entity.Property(e => e.Name).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<MetricType>(entity =>
+        {
+            entity.ToTable("MetricType");
+
+            entity.Property(e => e.Code).HasMaxLength(50);
+            entity.Property(e => e.MaxValue).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.MinValue).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasOne(d => d.UnitOfMetricType).WithMany(p => p.MetricTypes)
+                .HasForeignKey(d => d.UnitOfMetricTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MetricType_UnitOfMetricType");
         });
 
         modelBuilder.Entity<Patient>(entity =>
@@ -272,6 +377,23 @@ public partial class DigitalTwinPatientDbContext : DbContext
             entity.ToTable("SymptomCategory");
 
             entity.Property(e => e.Name).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<UnitOfMetricType>(entity =>
+        {
+            entity.ToTable("UnitOfMetricType");
+
+            entity.Property(e => e.Name).HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<WellnessJournal>(entity =>
+        {
+            entity.ToTable("WellnessJournal");
+
+            entity.HasOne(d => d.Patient).WithMany(p => p.WellnessJournals)
+                .HasForeignKey(d => d.PatientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_WellnessJournal_Patient");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -6,6 +6,9 @@
 ``` PM
 Scaffold-DbContext "{Вот тут твоя строка подключения}" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -ContextDir DatabaseContext
 ```
+``` PM
+Scaffold-DbContext "Data Source=DESKTOP-KSRNQI5;Initial Catalog=DigitalTwinPatientDB;Integrated Security=True;Encrypt=False;Trust Server Certificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -ContextDir DatabaseContext -Force
+```
 Если изменил БДху и надо обновить модели, добавь в конец команды: `-Force`
 
 Так же важно, из всех эендпоинтов, только роут с авторизацией без заголовков, остальные обязательно должны их принимать и работать с ними, на случай если JWT устарел или вообще пользователь не имеет доступа к какой-то инфе.
