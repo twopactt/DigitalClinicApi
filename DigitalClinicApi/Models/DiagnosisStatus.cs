@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace DigitalClinicApi.Models;
 
-public partial class UnitOfMetricType
+public partial class DiagnosisStatus
 {
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<MetricType> MetricTypes { get; set; } = new List<MetricType>();
+    public virtual ICollection<PatientHistory> PatientHistories { get; set; } = new List<PatientHistory>();
 }

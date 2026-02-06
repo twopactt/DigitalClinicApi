@@ -1,4 +1,7 @@
-﻿namespace DigitalClinicApi.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace DigitalClinicApi.Models;
 
 public partial class Patient
 {
@@ -35,6 +38,8 @@ public partial class Patient
     public virtual ICollection<MedicalCard> MedicalCards { get; set; } = new List<MedicalCard>();
 
     public virtual ICollection<PatientComplaint> PatientComplaints { get; set; } = new List<PatientComplaint>();
+
+    public virtual ICollection<PatientHistory> PatientHistories { get; set; } = new List<PatientHistory>();
 
     public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
 

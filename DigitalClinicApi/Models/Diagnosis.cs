@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DigitalClinicApi.Models;
+﻿namespace DigitalClinicApi.Models;
 
 public partial class Diagnosis
 {
@@ -14,4 +11,6 @@ public partial class Diagnosis
     public int DiagnosisCategoryId { get; set; }
 
     public virtual DiagnosisCategory DiagnosisCategory { get; set; } = null!;
+
+    public virtual ICollection<PatientHistory> PatientHistories { get; set; } = new List<PatientHistory>();
 }

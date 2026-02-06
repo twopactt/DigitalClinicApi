@@ -26,6 +26,8 @@ public partial class DigitalTwinPatientDbContext : DbContext
 
     public virtual DbSet<DiagnosisCategory> DiagnosisCategories { get; set; }
 
+    public virtual DbSet<DiagnosisStatus> DiagnosisStatuses { get; set; }
+
     public virtual DbSet<Doctor> Doctors { get; set; }
 
     public virtual DbSet<DoseUnit> DoseUnits { get; set; }
@@ -47,6 +49,8 @@ public partial class DigitalTwinPatientDbContext : DbContext
     public virtual DbSet<Patient> Patients { get; set; }
 
     public virtual DbSet<PatientComplaint> PatientComplaints { get; set; }
+
+    public virtual DbSet<PatientHistory> PatientHistories { get; set; }
 
     public virtual DbSet<Prescription> Prescriptions { get; set; }
 
@@ -142,6 +146,13 @@ public partial class DigitalTwinPatientDbContext : DbContext
         modelBuilder.Entity<DiagnosisCategory>(entity =>
         {
             entity.ToTable("DiagnosisCategory");
+
+            entity.Property(e => e.Name).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<DiagnosisStatus>(entity =>
+        {
+            entity.ToTable("DiagnosisStatus");
 
             entity.Property(e => e.Name).HasMaxLength(30);
         });
@@ -294,6 +305,26 @@ public partial class DigitalTwinPatientDbContext : DbContext
                 .HasForeignKey(d => d.SymptomId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PatientComplaint_Symptom");
+        });
+
+        modelBuilder.Entity<PatientHistory>(entity =>
+        {
+            entity.ToTable("PatientHistory");
+
+            entity.HasOne(d => d.Diagnosis).WithMany(p => p.PatientHistories)
+                .HasForeignKey(d => d.DiagnosisId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PatientHistory_Diagnosis");
+
+            entity.HasOne(d => d.DiagnosisNavigation).WithMany(p => p.PatientHistories)
+                .HasForeignKey(d => d.DiagnosisId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PatientHistory_Patient");
+
+            entity.HasOne(d => d.DiagnosisStatus).WithMany(p => p.PatientHistories)
+                .HasForeignKey(d => d.DiagnosisStatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PatientHistory_DiagnosisStatus");
         });
 
         modelBuilder.Entity<Prescription>(entity =>

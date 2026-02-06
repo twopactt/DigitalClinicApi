@@ -85,7 +85,7 @@ namespace DigitalClinicApi.Controllers
             });
         }
 
-        [HttpGet("/all_patients")]
+        [HttpGet("all_patients")]
         public IActionResult GetAll()
         {
             var patients = _db.Patients.ToList();
@@ -102,7 +102,7 @@ namespace DigitalClinicApi.Controllers
             return Ok(patient);
         }
 
-        [HttpPost("/create-patient")]
+        [HttpPost("create-patient")]
         public IActionResult Create([FromBody] CreatePatientRequestModel model)
         {
             if (_db.Patients.Any(p => p.Login == model.Login))
