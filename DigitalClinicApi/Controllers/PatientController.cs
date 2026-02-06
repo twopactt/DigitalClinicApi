@@ -2,7 +2,9 @@
 using DigitalClinicApi.Helpers;
 using DigitalClinicApi.Models;
 using DigitalClinicApi.RequestModel;
+using DigitalClinicApi.ResponceModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalClinicApi.Controllers
@@ -81,6 +83,88 @@ namespace DigitalClinicApi.Controllers
                 Token = token,
                 Role = "Patient"
             });
+        }
+
+        [HttpGet("/all_patients")]
+        public IActionResult GetAll()
+        {
+            var patients = _db.Patients.ToList();
+            return Ok(patients);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var patient = _db.Patients.FirstOrDefault(p => p.Id == id);
+            if (patient == null)
+                return NotFound(new { Message = "Пациент не найден" });
+
+            return Ok(patient);
+        }
+
+        [HttpPost("/create-patient")]
+        public IActionResult Create([FromBody] CreatePatientRequestModel model)
+        {
+            if (_db.Patients.Any(p => p.Login == model.Login))
+                return BadRequest(new { Message = "Логин уже существует" });
+
+            var patient = new Patient
+            {
+                Surname = model.Surname,
+                Name = model.Name,
+                Patronymic = model.Patronymic,
+                GenderId = model.GenderId,
+                AddressId = model.AddressId,
+                Email = model.Email,
+                Birthday = model.Birthday,
+                Phone = model.Phone,
+                Login = model.Login,
+                Password = PasswordHasher.Hash(model.Password)
+            };
+
+            _db.Patients.Add(patient);
+            _db.SaveChanges();
+
+            return Ok(patient);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public IActionResult Update(int id, [FromBody] UpdatePatientRequestModel model)
+        {
+            var patient = _db.Patients.FirstOrDefault(p => p.Id == id);
+            if (patient == null)
+                return NotFound();
+
+            patient.Surname = model.Surname;
+            patient.Name = model.Name;
+            patient.Patronymic = model.Patronymic;
+            patient.Phone = model.Phone;
+            patient.AddressId = model.AddressId;
+
+            _db.SaveChanges();
+            return Ok(new PatientResponseModel
+            {
+                Id = patient.Id,
+                Surname = patient.Surname,
+                Name = patient.Name,
+                Patronymic = patient.Patronymic,
+                Email = patient.Email,
+                Phone = patient.Phone
+            });
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Delete(int id)
+        {
+            var patient = _db.Patients.FirstOrDefault(p => p.Id == id);
+            if (patient == null)
+                return NotFound();
+
+            _db.Patients.Remove(patient);
+            _db.SaveChanges();
+            return Ok(new { Message = "Пациент удалён" });
         }
     }
 }
