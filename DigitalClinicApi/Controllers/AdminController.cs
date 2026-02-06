@@ -4,8 +4,6 @@ using DigitalClinicApi.Models;
 using DigitalClinicApi.RequestModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace DigitalClinicApi.Controllers
 {
@@ -44,7 +42,7 @@ namespace DigitalClinicApi.Controllers
                 Email = model.Email,
                 Phone = model.Phone,
                 Login = model.Login,
-                Password = HashPassword(model.Password)
+                Password = PasswordHasher.Hash(model.Password)
             };
 
             _db.Admins.Add(admin);
@@ -78,7 +76,7 @@ namespace DigitalClinicApi.Controllers
                 Email = model.Email,
                 Phone = model.Phone,
                 Login = model.Login,
-                Password = HashPassword(model.Password)
+                Password = PasswordHasher.Hash(model.Password)
             };
 
             _db.Doctors.Add(doctor);
@@ -115,7 +113,7 @@ namespace DigitalClinicApi.Controllers
                 Birthday = model.Birthday,
                 Phone = model.Phone,
                 Login = model.Login,
-                Password = HashPassword(model.Password)
+                Password = PasswordHasher.Hash(model.Password)
             };
 
             _db.Patients.Add(patient);
@@ -184,13 +182,6 @@ namespace DigitalClinicApi.Controllers
             };
 
             return Ok(stats);
-        }
-
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
         }
     }
 }

@@ -3,8 +3,6 @@ using DigitalClinicApi.Helpers;
 using DigitalClinicApi.RequestModel;
 using DigitalClinicApi.ResponceModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace DigitalClinicApi.Controllers
 {
@@ -24,7 +22,7 @@ namespace DigitalClinicApi.Controllers
         [HttpPost("admin/login")]
         public IActionResult AdminLogin([FromBody] AdminAuthModel model)
         {
-            var hashedPassword = HashPassword(model.Password);
+            var hashedPassword = PasswordHasher.Hash(model.Password);
 
             var admin = _db.Admins
                 .FirstOrDefault(a => a.Login == model.Login && a.Password == hashedPassword);
@@ -49,7 +47,7 @@ namespace DigitalClinicApi.Controllers
         [HttpPost("doctor/login")]
         public IActionResult DoctorLogin([FromBody] DoctorAuthModel model)
         {
-            var hashedPassword = HashPassword(model.Password);
+            var hashedPassword = PasswordHasher.Hash(model.Password);
 
             var doctor = _db.Doctors
                 .FirstOrDefault(d => d.Login == model.Login && d.Password == hashedPassword);
@@ -74,7 +72,7 @@ namespace DigitalClinicApi.Controllers
         [HttpPost("patient/login")]
         public IActionResult PatientLogin([FromBody] PatientAuthModel model)
         {
-            var hashedPassword = HashPassword(model.Password);
+            var hashedPassword = PasswordHasher.Hash(model.Password);
 
             var patient = _db.Patients
                 .FirstOrDefault(p => p.Login == model.Login && p.Password == hashedPassword);
@@ -94,13 +92,6 @@ namespace DigitalClinicApi.Controllers
                 Token = token,
                 Role = "Patient"
             });
-        }
-
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
         }
     }
 }
