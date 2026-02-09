@@ -83,7 +83,7 @@ namespace DigitalClinicApi.Controllers
             var token = _jwtService.GenerateToken(
                 userId: patient.Id.ToString(),
                 role: "Patient",
-                name: $"{patient.Surname} {patient.Name}"
+                name: $"{patient.Surname} {patient.Name} {patient.Patronymic}"
             );
 
             return Ok(new PatientAuthResponse
