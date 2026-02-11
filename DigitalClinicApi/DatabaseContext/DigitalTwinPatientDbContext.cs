@@ -16,6 +16,8 @@ public partial class DigitalTwinPatientDbContext : DbContext
 
     public virtual DbSet<Admin> Admins { get; set; }
 
+    public virtual DbSet<BloodType> BloodTypes { get; set; }
+
     public virtual DbSet<Consultation> Consultations { get; set; }
 
     public virtual DbSet<ConsultationType> ConsultationTypes { get; set; }
@@ -90,6 +92,13 @@ public partial class DigitalTwinPatientDbContext : DbContext
             entity.Property(e => e.Patronymic).HasMaxLength(30);
             entity.Property(e => e.Phone).HasMaxLength(12);
             entity.Property(e => e.Surname).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<BloodType>(entity =>
+        {
+            entity.ToTable("BloodType");
+
+            entity.Property(e => e.Name).HasMaxLength(30);
         });
 
         modelBuilder.Entity<Consultation>(entity =>
@@ -231,10 +240,14 @@ public partial class DigitalTwinPatientDbContext : DbContext
         {
             entity.ToTable("MedicalCard");
 
-            entity.Property(e => e.BloodType).HasMaxLength(5);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.Weight).HasColumnType("decimal(5, 2)");
+
+            entity.HasOne(d => d.BloodType).WithMany(p => p.MedicalCards)
+                .HasForeignKey(d => d.BloodTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MedicalCard_BloodType");
 
             entity.HasOne(d => d.Patient).WithMany(p => p.MedicalCards)
                 .HasForeignKey(d => d.PatientId)

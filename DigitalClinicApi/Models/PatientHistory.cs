@@ -1,4 +1,7 @@
-﻿namespace DigitalClinicApi.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace DigitalClinicApi.Models;
 
 public partial class PatientHistory
 {

@@ -35,6 +35,12 @@ namespace DigitalClinicApi.Helpers
             if (!Regex.IsMatch(password, @"[0-9]"))
                 return (false, "Пароль должен содержать хотя бы одну цифру");
 
+            if (!Regex.IsMatch(password, @"[!@#$%^&*()\[\],.?"":{}|<>~`'\\/_+=\-;]"))
+                return (false, "Пароль должен содержать хотя бы один специальный символ");
+
+            if (!Regex.IsMatch(password, @"[A-Z]"))
+                return (false, "Пароль должен содержать хотя бы одну заглавную букву");
+
             return (true, "Пароль валиден");
         }
 
